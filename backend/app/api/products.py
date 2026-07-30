@@ -10,15 +10,43 @@ from app.core.security import require_role
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
+from typing import Optional
+
+from fastapi import Response
+
 @router.get("/", response_model=list[ProductResponse])
-def list_products(db: Session = Depends(get_db)):
-    return (
+def list_products(
+    response: Response,
+    db: Session = Depends(get_db),
+    search: Optional[str] = None,
+    category_id: Optional[int] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    skip: int = 0,
+    limit: int = 20,
+):
+    query = (
         db.query(Product)
         .options(joinedload(Product.category))
         .filter(Product.is_active == True)
-        .all()
     )
 
+    if search:
+        query = query.filter(Product.name.ilike(f"%{search}%"))
+
+    if category_id:
+        query = query.filter(Product.category_id == category_id)
+
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
+    total_count = query.count()
+    response.headers["X-Total-Count"] = str(total_count)
+
+    return query.order_by(Product.id).offset(skip).limit(limit).all()
 
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product(product_id: int, db: Session = Depends(get_db)):
