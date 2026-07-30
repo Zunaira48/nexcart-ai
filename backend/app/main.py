@@ -24,4 +24,18 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy"}  
+
+
+
+from app.db.database import engine
+from sqlalchemy import text
+
+@app.get("/db-test")
+def test_db_connection():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return {"database": "connected successfully"}
+    except Exception as e:
+        return {"database": "connection failed", "error": str(e)}
