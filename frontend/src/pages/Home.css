@@ -1,0 +1,35 @@
+.home-page {
+  padding-top: clamp(2rem, 6vw, 4rem);
+  padding-bottom: 4rem;
+}
+
+.home-hero {
+  margin-bottom: 2.5rem;
+}
+
+.home-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.home-hero p {
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.home-status {
+  color: var(--color-text-muted);
+  padding: 3rem 0;
+}
+
+.home-error {
+  color: #f87171;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}

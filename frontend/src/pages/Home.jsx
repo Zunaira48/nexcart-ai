@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/productService";
+import ProductCard from "../components/ProductCard";
+import "./Home.css";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -13,20 +15,23 @@ function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading products...</p>;
-  if (error) return <p>Error: {error}</p>;
-
   return (
-    <div>
-      <h1>NexCart AI</h1>
-      <p>Next Generation E-Commerce</p>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            {product.name} — ${product.price}
-          </li>
-        ))}
-      </ul>
+    <div className="container home-page">
+      <div className="home-hero">
+        <h1>NexCart AI</h1>
+        <p>Next Generation E-Commerce</p>
+      </div>
+
+      {loading && <p className="home-status">Loading products...</p>}
+      {error && <p className="home-status home-error">Error: {error}</p>}
+
+      {!loading && !error && (
+        <div className="product-grid">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
