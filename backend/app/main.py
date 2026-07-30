@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.db.database import Base, engine
+from app.models.user import User
+
+Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="NexCart AI API",
@@ -28,14 +33,3 @@ def health_check():
 
 
 
-from app.db.database import engine
-from sqlalchemy import text
-
-@app.get("/db-test")
-def test_db_connection():
-    try:
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-        return {"database": "connected successfully"}
-    except Exception as e:
-        return {"database": "connection failed", "error": str(e)}
