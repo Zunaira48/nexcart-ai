@@ -99,3 +99,9 @@
 .detail-add-to-cart:hover {
   background: var(--color-primary-hover);
 }
+
+.detail-add-message {
+  margin-top: 0.75rem;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}

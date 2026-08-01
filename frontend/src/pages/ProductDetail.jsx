@@ -1,11 +1,34 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../services/productService";
 import "./ProductDetail.css";
+import { addToCart } from "../services/cartService";
+import { useAuth } from "../context/useAuth";
 
 function ProductDetail({ id }) {
   const [state, setState] = useState({ product: null, loading: true, error: null });
   const { product, loading, error } = state;
+  const { user } = useAuth();
+const navigate = useNavigate();
+const [adding, setAdding] = useState(false);
+const [addMessage, setAddMessage] = useState(null);
+
+const handleAddToCart = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setAdding(true);
+    setAddMessage(null);
+    try {
+      await addToCart(product.id, 1);
+      setAddMessage("Added to cart!");
+    } catch {
+      setAddMessage("Could not add to cart.");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   useEffect(() => {
     getProductById(id)
@@ -45,7 +68,10 @@ function ProductDetail({ id }) {
             <p className="detail-description">{product.description}</p>
           )}
 
-          <button className="detail-add-to-cart">Add to Cart</button>
+          <button className="detail-add-to-cart" onClick={handleAddToCart} disabled={adding}>
+            {adding ? "Adding..." : "Add to Cart"}
+          </button>
+            {addMessage && <p className="detail-add-message">{addMessage}</p>}
         </div>
       </div>
     </div>

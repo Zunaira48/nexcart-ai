@@ -24,3 +24,11 @@ export const updateProduct = async (id, data) => {
 export const deleteProduct = async (id) => {
   await api.delete(`/products/${id}`);
 };
+
+export const getProductsWithCount = async (params = {}) => {
+  const response = await api.get("/products/", { params });
+  return {
+    data: response.data,
+    total: Number(response.headers["x-total-count"] || response.data.length),
+  };
+};
