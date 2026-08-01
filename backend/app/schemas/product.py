@@ -29,3 +29,14 @@ class ProductResponse(BaseModel):
     category: CategoryResponse
 
     model_config = ConfigDict(from_attributes=True)
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[Decimal] = None
+    stock_quantity: Optional[int] = None
+    image_url: Optional[str] = None
+    category_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
+    
