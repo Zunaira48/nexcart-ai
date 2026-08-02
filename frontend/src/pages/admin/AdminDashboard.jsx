@@ -61,6 +61,9 @@ function AdminDashboard() {
   return (
     <div className="container admin-page">
       <h1 className="admin-title">Admin Dashboard</h1>
+      <Link to="/admin/orders" className="admin-btn-secondary" style={{ marginBottom: "2rem", display: "inline-block" }}>
+       Manage Orders
+      </Link>
 
       {error && <p className="auth-error">{error}</p>}
 

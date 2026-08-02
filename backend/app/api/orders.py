@@ -7,8 +7,8 @@ from app.db.database import get_db
 from app.models.cart import CartItem
 from app.models.order import Order, OrderItem
 from app.models.user import User
-from app.schemas.order import OrderResponse
-from app.core.security import get_current_user
+from app.schemas.order import OrderResponse, OrderAdminResponse, OrderStatusUpdate
+from app.core.security import get_current_user, require_role
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -85,6 +85,40 @@ def checkout(
         item.product.stock_quantity -= item.quantity
         db.delete(item)
 
+    db.commit()
+    db.refresh(order)
+    return order
+
+@router.get("/admin/all", response_model=list[OrderAdminResponse])
+def list_all_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    return (
+        db.query(Order)
+        .options(joinedload(Order.items), joinedload(Order.user))
+        .order_by(Order.id.desc())
+        .all()
+    )
+
+
+@router.patch("/{order_id}/status", response_model=OrderAdminResponse)
+def update_order_status(
+    order_id: int,
+    status_update: OrderStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items), joinedload(Order.user))
+        .filter(Order.id == order_id)
+        .first()
+    )
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    order.status = status_update.status
     db.commit()
     db.refresh(order)
     return order

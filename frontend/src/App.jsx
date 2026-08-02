@@ -17,6 +17,7 @@ import Wishlist from "./pages/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryForm from "./pages/admin/CategoryForm";
 import ProductForm from "./pages/admin/ProductForm";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 function App() {
   return (
@@ -76,6 +77,14 @@ function App() {
                       <ProductForm />
                     </AdminRoute>
                   }
+                />
+                <Route
+                   path="/admin/orders"
+                    element={
+                     <AdminRoute>
+                       <AdminOrders />
+                     </AdminRoute>
+                   }
                 />
               </Routes>
             </BrowserRouter>
