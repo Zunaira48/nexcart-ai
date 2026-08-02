@@ -11,6 +11,9 @@ from app.models.cart import CartItem
 from app.api.cart import router as cart_router
 from app.models.order import Order, OrderItem
 from app.api.orders import router as orders_router
+from app.models.wishlist import WishlistItem
+from app.api.wishlist import router as wishlist_router
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,6 +38,7 @@ app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(cart_router)
 app.include_router(orders_router)
+app.include_router(wishlist_router)
 
 
 @app.get("/")

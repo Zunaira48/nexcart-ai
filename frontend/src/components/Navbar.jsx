@@ -66,6 +66,11 @@ function Navbar() {
                     Orders
                   </Link>
                 )}
+                {user && (
+                  <Link to="/wishlist" onClick={() => setMenuOpen(false)}>
+                   Wishlist
+                  </Link>
+                )}
                 {user?.role === "admin" && (
                   <Link to="/admin" onClick={() => setMenuOpen(false)}>
                     Admin

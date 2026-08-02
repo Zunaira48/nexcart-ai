@@ -4,14 +4,27 @@ import { getProductById } from "../services/productService";
 import "./ProductDetail.css";
 import { addToCart } from "../services/cartService";
 import { useAuth } from "../context/useAuth";
+import { useCart } from "../context/useCart";
+import { useWishlist } from "../context/useWishlist";
 
 function ProductDetail({ id }) {
   const [state, setState] = useState({ product: null, loading: true, error: null });
   const { product, loading, error } = state;
   const { user } = useAuth();
-const navigate = useNavigate();
-const [adding, setAdding] = useState(false);
-const [addMessage, setAddMessage] = useState(null);
+  const { setCart } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+const wishlisted = isWishlisted(product.id);
+
+const handleWishlistToggle = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    toggleWishlist(product.id);
+  };
+  const navigate = useNavigate();
+  const [adding, setAdding] = useState(false);
+  const [addMessage, setAddMessage] = useState(null);
 
 const handleAddToCart = async () => {
     if (!user) {
@@ -21,7 +34,8 @@ const handleAddToCart = async () => {
     setAdding(true);
     setAddMessage(null);
     try {
-      await addToCart(product.id, 1);
+      const updated = await addToCart(product.id, 1);
+      setCart(updated);
       setAddMessage("Added to cart!");
     } catch {
       setAddMessage("Could not add to cart.");
@@ -29,7 +43,6 @@ const handleAddToCart = async () => {
       setAdding(false);
     }
   };
-
   useEffect(() => {
     getProductById(id)
       .then((data) => setState({ product: data, loading: false, error: null }))
@@ -68,10 +81,15 @@ const handleAddToCart = async () => {
             <p className="detail-description">{product.description}</p>
           )}
 
-          <button className="detail-add-to-cart" onClick={handleAddToCart} disabled={adding}>
-            {adding ? "Adding..." : "Add to Cart"}
-          </button>
-            {addMessage && <p className="detail-add-message">{addMessage}</p>}
+          <div className="detail-actions">
+  <button className="detail-add-to-cart" onClick={handleAddToCart} disabled={adding}>
+    {adding ? "Adding..." : "Add to Cart"}
+  </button>
+  <button className="detail-wishlist-btn" onClick={handleWishlistToggle}>
+    {wishlisted ? "♥ Wishlisted" : "♡ Add to Wishlist"}
+  </button>
+</div>
+{addMessage && <p className="detail-add-message">{addMessage}</p>}
         </div>
       </div>
     </div>

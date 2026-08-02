@@ -7,23 +7,24 @@ import { checkout } from "../services/orderService";
 import "./Cart.css";
 
 function Cart() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { cart, loaded, setCart, refreshCart } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       navigate("/login");
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
+  [user, navigate];
 
-  const handleQuantityChange = async (itemId, quantity) => {
+  async function handleQuantityChange(itemId, quantity) {
     if (quantity < 1) return;
     const updated = await updateCartItem(itemId, quantity);
     setCart(updated);
-  };
+  }
 
   const handleRemove = async (itemId) => {
     const updated = await removeCartItem(itemId);
