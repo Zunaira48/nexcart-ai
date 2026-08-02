@@ -1,62 +1,51 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { getCart, updateCartItem, removeCartItem } from "../services/cartService";
+import { useCart } from "../context/useCart";
+import { updateCartItem, removeCartItem } from "../services/cartService";
+import { checkout } from "../services/orderService";
 import "./Cart.css";
 
 function Cart() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { cart, loaded, setCart, refreshCart } = useCart();
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
-      return;
     }
-
-    async function loadCart() {
-      try {
-        const data = await getCart();
-        setCart(data);
-      } catch {
-        setError("Failed to load cart.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadCart();
   }, [user, navigate]);
 
   const handleQuantityChange = async (itemId, quantity) => {
     if (quantity < 1) return;
-    try {
-      const updated = await updateCartItem(itemId, quantity);
-      setCart(updated);
-    } catch {
-      setError("Could not update quantity.");
-    }
+    const updated = await updateCartItem(itemId, quantity);
+    setCart(updated);
   };
 
   const handleRemove = async (itemId) => {
+    const updated = await removeCartItem(itemId);
+    setCart(updated);
+  };
+
+  const handleCheckout = async () => {
+    setCheckingOut(true);
+    setCheckoutError(null);
     try {
-      const updated = await removeCartItem(itemId);
-      setCart(updated);
-    } catch {
-      setError("Could not remove item.");
+      const order = await checkout();
+      await refreshCart();
+      navigate(`/orders/${order.id}`);
+    } catch (err) {
+      setCheckoutError(err.response?.data?.detail || "Checkout failed.");
+    } finally {
+      setCheckingOut(false);
     }
   };
 
-  if (loading) {
+  if (!loaded) {
     return <p className="container">Loading cart...</p>;
-  }
-
-  if (error) {
-    return <p className="container detail-error">{error}</p>;
   }
 
   if (!cart || cart.items.length === 0) {
@@ -113,6 +102,12 @@ function Cart() {
         <span>Total</span>
         <span className="cart-total-amount">${cart.total}</span>
       </div>
+
+      {checkoutError && <p className="auth-error">{checkoutError}</p>}
+
+      <button className="cart-checkout-btn" onClick={handleCheckout} disabled={checkingOut}>
+        {checkingOut ? "Placing order..." : "Place Order"}
+      </button>
     </div>
   );
 }

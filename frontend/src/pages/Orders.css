@@ -1,0 +1,101 @@
+.orders-page {
+  padding-top: clamp(2rem, 6vw, 4rem);
+  padding-bottom: 4rem;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.4rem;
+  transition: border-color 0.2s ease;
+}
+
+.order-row:hover {
+  border-color: var(--color-primary);
+}
+
+.order-row-id {
+  display: block;
+  font-weight: 700;
+}
+
+.order-row-date {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.order-row-total {
+  font-weight: 700;
+}
+
+.order-status {
+  text-transform: capitalize;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  justify-self: start;
+}
+
+.order-status-pending {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.order-status-completed {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.order-detail-meta {
+  color: var(--color-text-muted);
+  margin: -0.5rem 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.order-item-name {
+  font-weight: 600;
+}
+
+.order-item-price {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.order-item-subtotal {
+  font-weight: 700;
+}

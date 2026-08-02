@@ -11,6 +11,8 @@ import Cart from "./pages/Cart";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryForm from "./pages/admin/CategoryForm";
 import ProductForm from "./pages/admin/ProductForm";
+import Orders from "./pages/Orders";
+import OrderDetail from "./pages/OrderDetail";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:id" element={<OrderDetail />} />
 
             <Route
               path="/admin"
