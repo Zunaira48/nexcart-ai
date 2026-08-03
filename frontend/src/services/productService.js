@@ -27,8 +27,11 @@ export const deleteProduct = async (id) => {
 
 export const getProductsWithCount = async (params = {}) => {
   const response = await api.get("/products/", { params });
-  return {
-    data: response.data,
-    total: Number(response.headers["x-total-count"] || response.data.length),
-  };
+  const total = Number(response.headers["x-total-count"] || 0);
+  return { data: response.data, total };
+};
+export const getProductsPage = async (skip = 0, limit = 20) => {
+  const response = await api.get("/products/", { params: { skip, limit } });
+  const totalCount = Number(response.headers["x-total-count"] || 0);
+  return { products: response.data, totalCount };
 };

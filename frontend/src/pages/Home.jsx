@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
-import { getProducts, getProductsWithCount } from "../services/productService";
+import { getProductsWithCount } from "../services/productService";
 import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
 import "./Home.css";
 
+const PAGE_SIZE = 20;
+
 function Home() {
   const [products, setProducts] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
   const [categories, setCategories] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState({ search: "", categoryId: null, categoryName: null });
 
-  // Captured once, at mount — avoids calling Date.now() (an impure function)
-  // directly during render every time "is this product new?" is checked.
   const [now] = useState(() => Date.now());
 
   // Categories with real product counts — loaded once
@@ -36,15 +38,18 @@ function Home() {
     loadCategories();
   }, []);
 
-  // Products — reloads whenever search or category filter changes
+  // First page of products — reloads (from scratch) whenever search or category filter changes
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await getProducts({
+        const { data, total } = await getProductsWithCount({
           search: filters.search || undefined,
           category_id: filters.categoryId || undefined,
+          skip: 0,
+          limit: PAGE_SIZE,
         });
         setProducts(data);
+        setTotal(total);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -52,8 +57,26 @@ function Home() {
       }
     }
 
+    setLoading(true);
     loadProducts();
   }, [filters]);
+
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const { data } = await getProductsWithCount({
+        search: filters.search || undefined,
+        category_id: filters.categoryId || undefined,
+        skip: products.length,
+        limit: PAGE_SIZE,
+      });
+      setProducts((prev) => [...prev, ...data]);
+    } catch {
+      // If "load more" fails, just leave the existing products visible.
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -76,6 +99,7 @@ function Home() {
   };
 
   const hasActiveFilter = Boolean(filters.search || filters.categoryId);
+  const hasMore = products.length < total;
   const heading = filters.categoryName
     ? filters.categoryName
     : filters.search
@@ -148,15 +172,32 @@ function Home() {
           )}
 
           {!loading && !error && products.length > 0 && (
-            <div className="product-grid">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isNew={isRecent(product.created_at)}
-                />
-              ))}
-            </div>
+            <>
+              <p className="products-count">
+                Showing {products.length} of {total} products
+              </p>
+              <div className="product-grid">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isNew={isRecent(product.created_at)}
+                  />
+                ))}
+              </div>
+
+              {hasMore && (
+                <div className="load-more-wrapper">
+                  <button
+                    className="load-more-btn"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? "Loading..." : "Load More"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>
