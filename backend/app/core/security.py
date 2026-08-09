@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.database import get_db
 from app.models.user import User
+import secrets
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer()
@@ -67,3 +68,6 @@ def require_role(allowed_roles: list[str]):
             )
         return current_user
     return role_checker
+
+def generate_token() -> str:
+    return secrets.token_urlsafe(32)

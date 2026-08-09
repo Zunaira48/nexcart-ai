@@ -18,6 +18,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryForm from "./pages/admin/CategoryForm";
 import ProductForm from "./pages/admin/ProductForm";
 import AdminOrders from "./pages/admin/AdminOrders";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -37,6 +40,9 @@ function App() {
                 <Route path="/orders/:id" element={<OrderDetail />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
 
                 <Route
                   path="/admin"

@@ -15,6 +15,7 @@ from app.models.wishlist import WishlistItem
 from app.api.wishlist import router as wishlist_router
 from app.models.review import Review
 from app.api.reviews import router as reviews_router
+from app.models.token import EmailToken
 
 Base.metadata.create_all(bind=engine)
 

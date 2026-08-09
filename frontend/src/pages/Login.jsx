@@ -12,7 +12,6 @@ function Login() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -67,6 +66,9 @@ function Login() {
           Don't have an account? <Link to="/register">Register</Link>
         </p>
       </form>
+
+    <Link to="/forgot-password">Forgot password?</Link>
+
     </div>
   );
 }
