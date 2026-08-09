@@ -28,7 +28,7 @@ app = FastAPI(
 # Allow the React frontend (running on a different port) to talk to this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite's default dev port
+    allow_origins=["http://localhost:5173", "https://nexcart-ai.vercel.app/"],  # Vite's default dev port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

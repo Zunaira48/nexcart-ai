@@ -64,7 +64,6 @@ function AdminDashboard() {
       <Link to="/admin/orders" className="admin-btn-secondary" style={{ marginBottom: "2rem", display: "inline-block" }}>
        Manage Orders
       </Link>
-
       {error && <p className="auth-error">{error}</p>}
 
       {/* ---------------- Categories ---------------- */}
