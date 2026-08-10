@@ -7,6 +7,9 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00)
 ![Vite](https://img.shields.io/badge/Vite-React_Router_v7-646CFF?logo=vite&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Live](https://img.shields.io/badge/demo-live-brightgreen)
+
+**🔗 Live Demo:** [nexcart-ai.vercel.app](https://nexcart-ai.vercel.app)
 
 ---
 
@@ -20,6 +23,8 @@ An AI features phase (natural language search, product recommendations, review s
 
 **Customer-facing**
 - JWT-based authentication (register, login, persistent session)
+- Forgot password / reset password via emailed reset link
+- Email verification on signup
 - Product catalog with search, category filtering, and "Load More" pagination
 - Product detail pages with reviews and star ratings
 - Shopping cart with live item-count badge
@@ -45,8 +50,10 @@ An AI features phase (natural language search, product recommendations, review s
 | Frontend | React, Vite, React Router v7, Axios |
 | Backend | FastAPI, SQLAlchemy, Pydantic v2 |
 | Auth | JWT (python-jose), bcrypt password hashing |
-| Database | Microsoft SQL Server (local dev) / PostgreSQL (deployment) |
+| Database | Microsoft SQL Server (local dev) / PostgreSQL via Supabase (production) |
 | Migrations | Alembic |
+| Transactional Email | Resend (password reset, email verification) |
+| Deployment | Vercel (frontend) · Render (backend) · Supabase (database) |
 
 ## Screenshots
 
@@ -103,6 +110,28 @@ npm run dev
 
 Frontend runs at `http://localhost:5173`.
 
+### Environment Variables
+
+**Backend (`backend/.env`)**
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | MSSQL (local) or PostgreSQL (production) connection string |
+| `SECRET_KEY` | JWT signing secret |
+| `ALGORITHM` | JWT algorithm (`HS256`) |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime |
+| `RESEND_API_KEY` | API key from [resend.com](https://resend.com), used for password-reset and verification emails |
+| `EMAIL_FROM` | Sender address (e.g. `onboarding@resend.dev` in Resend sandbox mode) |
+| `FRONTEND_URL` | Base URL the emailed reset/verify links point to (e.g. `http://localhost:5173` locally, live domain in production) |
+
+**Frontend (`frontend/.env`)**
+
+| Variable | Description |
+|---|---|
+| `VITE_API_URL` | Base URL of the backend API |
+
+> ⚠️ Resend's sandbox mode (no custom domain verified) only delivers to the email address the Resend account itself was created with. Verify a domain in Resend to send to arbitrary recipients.
+
 ## Project Structure
 
 ```
@@ -125,7 +154,8 @@ nexcart-ai/
 
 ## Roadmap
 
-- [ ] Deployment (frontend + backend + database, entirely on free tiers)
+- [x] Deployment (frontend + backend + database, entirely on free tiers)
+- [x] Forgot password / email verification flow
 - [ ] AI Shopping Assistant
 - [ ] Natural language product search
 - [ ] AI-powered recommendations
