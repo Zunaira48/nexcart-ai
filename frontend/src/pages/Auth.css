@@ -4,96 +4,178 @@
   padding-top: clamp(3rem, 8vw, 6rem);
   padding-bottom: 4rem;
 }
-
 .auth-card {
+  width: 100%;
+  max-width: 400px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  padding: clamp(1.75rem, 4vw, 2.5rem);
   box-shadow: var(--shadow-card);
-  padding: 2.5rem;
+}
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+.auth-subtitle {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+.auth-error {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: var(--radius-md);
+  color: #f87171;
+  font-size: 0.9rem;
+}
+.auth-label {
+  display: block;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.auth-label input {
+  display: block;
   width: 100%;
-  max-width: 420px;
+  margin-top: 0.4rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+.auth-label input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.auth-forgot-link {
+  display: block;
+  margin-top: 0.6rem;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.auth-forgot-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+.auth-submit {
+  width: 100%;
+  margin-top: 1.75rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.auth-submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.auth-switch {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+.auth-switch a {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
+/* ── Generic (no-className) auth pages: ForgotPassword, ResetPassword, VerifyEmail ── */
+/* These pages don't use .auth-title/.auth-label/etc, so we target raw tags scoped
+   inside .auth-card. Works in both dark and light themes via existing CSS vars. */
+
 .auth-card h1 {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .auth-card > p {
-  margin-top: 0.5rem;
+  margin-top: 0.35rem;
   color: var(--color-text-muted);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
 }
 
 .auth-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 1.75rem;
+  gap: 1.1rem;
+  margin-top: 1.5rem;
 }
 
-.auth-card input {
+.auth-card form input {
   width: 100%;
+  padding: 0.7rem 0.9rem;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 0.8rem 1rem;
   color: var(--color-text);
   font-size: 0.95rem;
   font-family: inherit;
+  transition: border-color 0.2s ease;
 }
 
-.auth-card input:focus {
+.auth-card form input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.auth-card form input:focus {
   outline: none;
   border-color: var(--color-primary);
 }
 
-.auth-card input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.auth-card button[type="submit"] {
-  margin-top: 0.5rem;
+.auth-card form button[type="submit"] {
+  width: 100%;
   background: var(--color-primary);
   color: white;
   border: none;
+  padding: 0.85rem;
   border-radius: var(--radius-md);
-  padding: 0.85rem 1.5rem;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
-.auth-card button[type="submit"]:hover {
+.auth-card form button[type="submit"]:hover:not(:disabled) {
   background: var(--color-primary-hover);
 }
 
-.auth-card button[type="submit"]:disabled {
+.auth-card form button[type="submit"]:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* Standalone links rendered as direct children of .auth-card
+   (e.g. "Back to login", "Request a new link", "Go to login") */
 .auth-card > a {
-  display: inline-block;
+  display: block;
   margin-top: 1.5rem;
+  text-align: center;
   color: var(--color-primary);
   font-size: 0.9rem;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .auth-card > a:hover {
   color: var(--color-primary-hover);
-}
-
-.auth-error {
-  background: rgba(248, 113, 113, 0.12);
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  color: #f87171;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.88rem;
-  margin-bottom: 1.25rem;
+  text-decoration: underline;
 }

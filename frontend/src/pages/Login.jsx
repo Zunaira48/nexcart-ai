@@ -58,6 +58,10 @@ function Login() {
           />
         </label>
 
+        <Link to="/forgot-password" className="auth-forgot-link">
+          Forgot password?
+        </Link>
+
         <button type="submit" className="auth-submit" disabled={submitting}>
           {submitting ? "Logging in..." : "Log In"}
         </button>
@@ -66,9 +70,6 @@ function Login() {
           Don't have an account? <Link to="/register">Register</Link>
         </p>
       </form>
-
-    <Link to="/forgot-password">Forgot password?</Link>
-
     </div>
   );
 }
