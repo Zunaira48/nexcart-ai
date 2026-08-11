@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     resend_api_key: str
     email_from: str = "onboarding@resend.dev"
     frontend_url: str = "http://localhost:5173"
+    gemini_api_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

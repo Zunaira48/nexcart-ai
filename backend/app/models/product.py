@@ -12,6 +12,7 @@ class Product(Base):
     name = Column(String(200), nullable=False, index=True)
     slug = Column(String(200), unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True)
+    embedding = Column(Text, nullable=True)
     price = Column(Numeric(10, 2), nullable=False)
     stock_quantity = Column(Integer, nullable=False, default=0)
     image_url = Column(String(500), nullable=True)

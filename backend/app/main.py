@@ -16,6 +16,7 @@ from app.api.wishlist import router as wishlist_router
 from app.models.review import Review
 from app.api.reviews import router as reviews_router
 from app.models.token import EmailToken
+from app.api.search import router as search_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -43,6 +44,8 @@ app.include_router(cart_router)
 app.include_router(orders_router)
 app.include_router(wishlist_router)
 app.include_router(reviews_router)
+app.include_router(search_router)
+
 
 @app.get("/")
 def read_root():
