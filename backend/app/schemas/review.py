@@ -30,3 +30,10 @@ class ReviewResponse(BaseModel):
     user: ReviewerResponse
 
     model_config = ConfigDict(from_attributes=True)
+
+class ReviewSummaryResponse(BaseModel):
+    summary: str
+    sentiment: str
+    pros: list[str]
+    cons: list[str]
+    based_on: int

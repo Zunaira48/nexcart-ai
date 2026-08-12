@@ -7,6 +7,10 @@ from app.models.product import Product
 from app.models.user import User
 from app.schemas.review import ReviewCreate, ReviewResponse
 from app.core.security import get_current_user
+import json
+
+from app.core.summarization import generate_review_summary
+from app.schemas.review import ReviewSummaryResponse
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -72,3 +76,39 @@ def delete_review(
 
     db.delete(review)
     db.commit()
+
+MIN_REVIEWS_FOR_SUMMARY = 3
+
+
+@router.get("/product/{product_id}/summary", response_model=ReviewSummaryResponse)
+def get_review_summary(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
+    reviews = db.query(Review).filter(Review.product_id == product_id).all()
+    if len(reviews) < MIN_REVIEWS_FOR_SUMMARY:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Summary ke liye kam se kam {MIN_REVIEWS_FOR_SUMMARY} reviews chahiye.",
+        )
+
+    cached = None
+    if product.review_summary:
+        try:
+            cached = json.loads(product.review_summary)
+        except (TypeError, ValueError):
+            cached = None
+
+    if cached and cached.get("based_on") == len(reviews):
+        return cached
+
+    comments = [r.comment for r in reviews if r.comment]
+    ratings = [r.rating for r in reviews]
+    result = generate_review_summary(product.name, comments, ratings)
+    result["based_on"] = len(reviews)
+
+    product.review_summary = json.dumps(result)
+    db.commit()
+
+    return result
