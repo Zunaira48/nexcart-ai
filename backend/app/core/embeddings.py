@@ -17,7 +17,10 @@ _model = None
 def get_model():
     global _model
     if _model is None:
-        _model = TextEmbedding(model_name=MODEL_NAME)
+        # threads=1 — onnxruntime ko multiple CPU threads ke liye
+        # extra memory buffers na banane dena, Render ke tight
+        # 512 MB limit mein ye zaroori hai.
+        _model = TextEmbedding(model_name=MODEL_NAME, threads=1)
     return _model
 
 
