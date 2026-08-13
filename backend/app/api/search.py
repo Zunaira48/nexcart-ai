@@ -19,21 +19,28 @@ def smart_search(q: str, limit: int = 20, db: Session = Depends(get_db)):
 
     query_vector = np.array(embed_query(q), dtype=np.float32)
 
-    products = (
-        db.query(Product)
+    # Step 1: SIRF id + embedding fetch karo — poori product row nahi
+    # (naam, description, image_url waghera abhi zaroori nahi) — ye hi
+    # sabse bada memory-saving change hai.
+    rows = (
+        db.query(Product.id, Product.embedding)
         .filter(Product.is_active == True, Product.embedding.isnot(None))
         .all()
     )
-    if not products:
+    if not rows:
         return []
 
-    # Sab products ki embeddings ko ek hi matrix mein load karo (loop nahi)
-    vectors = np.array([json.loads(p.embedding) for p in products], dtype=np.float32)
+    ids = [r.id for r in rows]
+    vectors = np.array([json.loads(r.embedding) for r in rows], dtype=np.float32)
 
-    # Cosine similarity — ek hi bulk operation mein sab products ke sath
     query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-8)
     vector_norms = vectors / (np.linalg.norm(vectors, axis=1, keepdims=True) + 1e-8)
-    scores = vector_norms @ query_norm  # matrix-vector multiply — ye hi speed ka raaz hai
+    scores = vector_norms @ query_norm
 
     top_indices = np.argsort(-scores)[:limit]
-    return [products[i] for i in top_indices]
+    top_ids = [ids[i] for i in top_indices]
+
+    # Step 2: ab sirf top N (jaise 20) products ki POORI detail fetch karo
+    products = db.query(Product).filter(Product.id.in_(top_ids)).all()
+    products_by_id = {p.id: p for p in products}
+    return [products_by_id[i] for i in top_ids if i in products_by_id]
