@@ -24,6 +24,7 @@ function ProductDetail({ id }) {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -121,12 +122,12 @@ function ProductDetail({ id }) {
 
       <div className="detail-layout">
         <div className="detail-image">
-          {product.image_url ? (
-            <img src={product.image_url} alt={product.name} />
-          ) : (
-            <div className="detail-image-placeholder">No Image</div>
+          {product.image_url && !imageFailed ? (
+          <img src={product.image_url} alt={product.name} onError={() => setImageFailed(true)} />
+        ) : (
+         <div className="detail-image-placeholder">{product.name}</div>
           )}
-        </div>
+         </div>
 
         <div className="detail-info">
           <span className="detail-category">{product.category.name}</span>
