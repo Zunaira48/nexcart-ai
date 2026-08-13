@@ -2,7 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
-import { getProductsWithCount, smartSearchProducts } from "../services/productService";
+import {
+  getProductsWithCount,
+  smartSearchProducts,
+  getRecommendations,
+} from "../services/productService";
+import { getSearchHistory, addSearchQuery } from "../utils/searchHistory";
 import "./Home.css";
 
 const PAGE_SIZE = 20;
@@ -18,7 +23,9 @@ function Home() {
 
   const [categories, setCategories] = useState([]);
   const [searchInput, setSearchInput] = useState("");
+  const [listening, setListening] = useState(false);
   const resultsRef = useRef(null);
+
   const [filters, setFilters] = useState(() => ({
     search: "",
     categoryId: location.state?.categoryId ?? null,
@@ -26,6 +33,32 @@ function Home() {
   }));
 
   const [now] = useState(() => Date.now());
+  const [recommendations, setRecommendations] = useState([]);
+  const recommendationsRef = useRef([]);
+
+  const handleMicClick = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Ye browser voice search support nahi karta. Chrome try karo.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setListening(true);
+    recognition.onend = () => setListening(false);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchInput(transcript);
+      setFilters({ search: transcript.trim(), categoryId: null, categoryName: null });
+      addSearchQuery(transcript.trim());
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    recognition.start();
+  };
 
   // Categories with real product counts — loaded once
   useEffect(() => {
@@ -55,31 +88,50 @@ function Home() {
 
   // First page of products — reloads (from scratch) whenever search or category filter changes
   useEffect(() => {
-  async function loadProducts() {
-    setLoading(true);
-    try {
-      if (filters.search) {
-        // Smart search — semantic match, Gemini/local model se, saara result ek sath aata hai
-        const data = await smartSearchProducts(filters.search);
-        setProducts(data);
-        setTotal(data.length);
-      } else {
-        const { data, total } = await getProductsWithCount({
-          category_id: filters.categoryId || undefined,
-          skip: 0,
-          limit: PAGE_SIZE,
-        });
-        setProducts(data);
-        setTotal(total);
+    async function loadProducts() {
+      setLoading(true);
+      try {
+        if (filters.search) {
+          // Smart search — semantic match, local model se, saara result ek sath aata hai
+          const data = await smartSearchProducts(filters.search);
+          setProducts(data);
+          setTotal(data.length);
+        } else {
+          const { data, total } = await getProductsWithCount({
+            category_id: filters.categoryId || undefined,
+            skip: 0,
+            limit: PAGE_SIZE,
+          });
+          setProducts(data);
+          setTotal(total);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
-  }
 
     loadProducts();
+  }, [filters]);
+
+  // Recommendations — sirf tab dikhengi jab koi search/category filter active na ho
+  useEffect(() => {
+    const history = getSearchHistory();
+    if (!filters.search && !filters.categoryId && history.length > 0) {
+      getRecommendations(history)
+        .then((data) => {
+          recommendationsRef.current = data;
+          setRecommendations(data);
+        })
+        .catch(() => {
+          recommendationsRef.current = [];
+          setRecommendations([]);
+        });
+    } else if (recommendationsRef.current.length > 0) {
+      recommendationsRef.current = [];
+      setRecommendations([]);
+    }
   }, [filters]);
 
   const handleLoadMore = async () => {
@@ -101,10 +153,11 @@ function Home() {
   };
 
   const handleSearchSubmit = (e) => {
-  e.preventDefault();
-  setFilters({ search: searchInput.trim(), categoryId: null, categoryName: null });
-  resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
+    e.preventDefault();
+    setFilters({ search: searchInput.trim(), categoryId: null, categoryName: null });
+    addSearchQuery(searchInput.trim());
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const handleCategoryClick = (category) => {
     setSearchInput("");
@@ -143,45 +196,66 @@ function Home() {
           <form className="hero-search" onSubmit={handleSearchSubmit}>
             <input
               type="text"
+              className="hero-search-input"
               placeholder="Search for laptops, headphones, and more..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button type="submit">Search</button>
+            <button
+              type="button"
+              className="hero-mic-btn"
+              onClick={handleMicClick}
+              aria-label="Search by voice"
+            >
+              {listening ? "🔴" : "🎤"}
+            </button>
+            <button type="submit" className="hero-search-btn">
+              Search
+            </button>
           </form>
         </div>
       </section>
 
+      {recommendations.length > 0 && (
+        <section className="categories-rail">
+          <h2 className="section-heading">Recommended for you</h2>
+          <div className="product-grid">
+            {recommendations.map((product) => (
+              <ProductCard key={product.id} product={product} isNew={false} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="container">
         {/* ---------------- Categories ---------------- */}
         {categories.length > 0 && (
-        <section className="categories-rail">
-        <h2 className="section-heading">Shop by category</h2>
-         <div className="categories-grid">
-           {categories.slice(0, 9).map((category) => (
-         <button
-          key={category.id}
-          className={`category-tile ${
-            filters.categoryId === category.id ? "category-tile-active" : ""
-          }`}
-          onClick={() => handleCategoryClick(category)}
-          >
-          <span className="category-tile-name">{category.name}</span>
-          <span className="category-tile-count">
-            {category.productCount} {category.productCount === 1 ? "item" : "items"}
-          </span>
-        </button>
-      ))}
-      {categories.length > 9 && (
-        <button className="category-tile category-tile-more" onClick={() => navigate("/categories")}>
-          <span className="category-tile-name">More categories</span>
-          <span className="category-tile-count">{categories.length - 9} more →</span>
-        </button>
+          <section className="categories-rail">
+            <h2 className="section-heading">Shop by category</h2>
+            <div className="categories-grid">
+              {categories.slice(0, 9).map((category) => (
+                <button
+                  key={category.id}
+                  className={`category-tile ${
+                    filters.categoryId === category.id ? "category-tile-active" : ""
+                  }`}
+                  onClick={() => handleCategoryClick(category)}
+                >
+                  <span className="category-tile-name">{category.name}</span>
+                  <span className="category-tile-count">
+                    {category.productCount} {category.productCount === 1 ? "item" : "items"}
+                  </span>
+                </button>
+              ))}
+              {categories.length > 9 && (
+                <button className="category-tile category-tile-more" onClick={() => navigate("/categories")}>
+                  <span className="category-tile-name">More categories</span>
+                  <span className="category-tile-count">{categories.length - 9} more →</span>
+                </button>
+              )}
+            </div>
+          </section>
         )}
-         </div>
-        </section>
-     )}
-          
 
         {/* ---------------- Product Grid ---------------- */}
         <section className="products-section" ref={resultsRef}>

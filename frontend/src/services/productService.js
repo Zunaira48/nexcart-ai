@@ -40,3 +40,10 @@ export const smartSearchProducts = async (query, limit = 40) => {
   const response = await api.get("/search/products", { params: { q: query, limit } });
   return response.data;
 };
+
+export const getRecommendations = async (queries, limit = 12) => {
+  const response = await api.get("/search/recommendations", {
+    params: { queries: queries.join(","), limit },
+  });
+  return response.data;
+};

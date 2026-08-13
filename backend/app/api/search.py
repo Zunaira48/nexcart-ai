@@ -51,3 +51,28 @@ def smart_search(q: str, limit: int = 20, db: Session = Depends(get_db)):
     products = db.query(Product).filter(Product.id.in_(top_ids)).all()
     products_by_id = {p.id: p for p in products}
     return [products_by_id[i] for i in top_ids if i in products_by_id]
+
+@router.get("/recommendations", response_model=list[ProductResponse])
+def get_recommendations(queries: str, limit: int = 12, db: Session = Depends(get_db)):
+    query_list = [q.strip() for q in queries.split(",") if q.strip()][-5:]
+    if not query_list:
+        return []
+
+    vectors = [np.array(embed_query(q), dtype=np.float32) for q in query_list]
+    avg_query = np.mean(vectors, axis=0)
+
+    ids, product_vectors = get_cached_vectors(db)
+    if not ids:
+        return []
+
+    pv = product_vectors.astype(np.float32)
+    query_norm = avg_query / (np.linalg.norm(avg_query) + 1e-8)
+    vector_norms = pv / (np.linalg.norm(pv, axis=1, keepdims=True) + 1e-8)
+    scores = vector_norms @ query_norm
+
+    top_indices = np.argsort(-scores)[:limit]
+    top_ids = [ids[i] for i in top_indices]
+
+    products = db.query(Product).filter(Product.id.in_(top_ids)).all()
+    products_by_id = {p.id: p for p in products}
+    return [products_by_id[i] for i in top_ids if i in products_by_id]

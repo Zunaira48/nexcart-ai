@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useWishlist } from "../context/useWishlist";
+import { proxiedImageUrl } from "../utils/imageProxy";
 import "./ProductCard.css";
 
 function ProductCard({ product, isNew }) {
@@ -38,10 +39,10 @@ function ProductCard({ product, isNew }) {
           <div className="product-card-placeholder">{product.name}</div>
         ) : (
           <img
-            src={product.image_url}
-            alt={product.name}
-            onError={() => setImageFailed(true)}
-          />
+             src={proxiedImageUrl(product.image_url)}
+             alt={product.name}
+             onError={() => setImageFailed(true)}
+/>
         )}
       </div>
       <div className="product-card-body">

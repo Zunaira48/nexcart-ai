@@ -17,6 +17,7 @@ from app.models.review import Review
 from app.api.reviews import router as reviews_router
 from app.models.token import EmailToken
 from app.api.search import router as search_router
+from app.api.images import router as images_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -45,6 +46,7 @@ app.include_router(orders_router)
 app.include_router(wishlist_router)
 app.include_router(reviews_router)
 app.include_router(search_router)
+app.include_router(images_router)
 
 
 @app.get("/")

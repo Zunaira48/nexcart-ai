@@ -8,7 +8,7 @@ import { useCart } from "../context/useCart";
 import { useWishlist } from "../context/useWishlist";
 import { getProductReviews, submitReview, getReviewSummary } from "../services/reviewService";
 import StarRating from "../components/StarRating";
-
+import { proxiedImageUrl } from "../utils/imageProxy";
 
 function ProductDetail({ id }) {
   const [state, setState] = useState({ product: null, loading: true, error: null });
@@ -123,9 +123,9 @@ function ProductDetail({ id }) {
       <div className="detail-layout">
         <div className="detail-image">
           {product.image_url && !imageFailed ? (
-          <img src={product.image_url} alt={product.name} onError={() => setImageFailed(true)} />
-        ) : (
-         <div className="detail-image-placeholder">{product.name}</div>
+            <img src={proxiedImageUrl(product.image_url)} alt={product.name} onError={() => setImageFailed(true)} />
+          ) : (
+            <div className="detail-image-placeholder">{product.name}</div>
           )}
          </div>
 
