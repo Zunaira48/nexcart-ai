@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
@@ -18,6 +18,7 @@ function Home() {
 
   const [categories, setCategories] = useState([]);
   const [searchInput, setSearchInput] = useState("");
+  const resultsRef = useRef(null);
   const [filters, setFilters] = useState(() => ({
     search: "",
     categoryId: location.state?.categoryId ?? null,
@@ -100,9 +101,10 @@ function Home() {
   };
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setFilters({ search: searchInput.trim(), categoryId: null, categoryName: null });
-  };
+  e.preventDefault();
+  setFilters({ search: searchInput.trim(), categoryId: null, categoryName: null });
+  resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
   const handleCategoryClick = (category) => {
     setSearchInput("");
@@ -182,7 +184,7 @@ function Home() {
           
 
         {/* ---------------- Product Grid ---------------- */}
-        <section className="products-section">
+        <section className="products-section" ref={resultsRef}>
           <div className="products-section-header">
             <h2 className="section-heading">{heading}</h2>
             {hasActiveFilter && (
