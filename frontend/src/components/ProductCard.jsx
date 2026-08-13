@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useWishlist } from "../context/useWishlist";
@@ -8,6 +9,7 @@ function ProductCard({ product, isNew }) {
   const navigate = useNavigate();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const wishlisted = isWishlisted(product.id);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
@@ -18,6 +20,8 @@ function ProductCard({ product, isNew }) {
     }
     toggleWishlist(product.id);
   };
+
+  const showPlaceholder = !product.image_url || imageFailed;
 
   return (
     <Link to={`/products/${product.id}`} className="product-card">
@@ -30,10 +34,14 @@ function ProductCard({ product, isNew }) {
         >
           {wishlisted ? "♥" : "♡"}
         </button>
-        {product.image_url ? (
-          <img src={product.image_url} alt={product.name} />
+        {showPlaceholder ? (
+          <div className="product-card-placeholder">{product.name}</div>
         ) : (
-          <div className="product-card-placeholder">No Image</div>
+          <img
+            src={product.image_url}
+            alt={product.name}
+            onError={() => setImageFailed(true)}
+          />
         )}
       </div>
       <div className="product-card-body">
