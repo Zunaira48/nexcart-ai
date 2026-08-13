@@ -220,3 +220,22 @@
   color: var(--color-text-muted);
   margin-top: 1rem;
 }
+
+.ai-summary-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.04));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.ai-summary-badge {
+  font-weight: 600;
+  color: #a78bfa;
+  margin-bottom: 0.5rem;
+}
+
+.ai-summary-list ul {
+  margin: 0.25rem 0 0.75rem;
+  padding-left: 1.25rem;
+}

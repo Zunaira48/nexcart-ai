@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import Wishlist from "./pages/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryForm from "./pages/admin/CategoryForm";
+import CategoriesPage from "./pages/CategoriesPage";
 import ProductForm from "./pages/admin/ProductForm";
 import AdminOrders from "./pages/admin/AdminOrders";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -32,6 +33,7 @@ function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { getProductsWithCount } from "../services/productService";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
+import { getProductsWithCount, smartSearchProducts } from "../services/productService";
 import "./Home.css";
 
 const PAGE_SIZE = 20;
@@ -10,12 +11,18 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
   const [categories, setCategories] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [filters, setFilters] = useState({ search: "", categoryId: null, categoryName: null });
+  const [filters, setFilters] = useState(() => ({
+    search: "",
+    categoryId: location.state?.categoryId ?? null,
+    categoryName: location.state?.categoryName ?? null,
+  }));
 
   const [now] = useState(() => Date.now());
 
@@ -30,39 +37,52 @@ function Home() {
             return { ...category, productCount: total };
           })
         );
-        setCategories(withCounts);
-      } catch {
-        // The category rail is a nice-to-have; the page still works without it.
+        const sorted = [...withCounts].sort((a, b) => b.productCount - a.productCount);
+        setCategories(sorted);
+      } catch (err) {
+        console.error("Failed to load categories", err);
       }
     }
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    if (location.state?.categoryId) {
+      window.history.replaceState({}, document.title); // state clear, back-button clean rahe
+    }
+  }, [location.state]);
+
   // First page of products — reloads (from scratch) whenever search or category filter changes
   useEffect(() => {
-    async function loadProducts() {
-      try {
+  async function loadProducts() {
+    setLoading(true);
+    try {
+      if (filters.search) {
+        // Smart search — semantic match, Gemini/local model se, saara result ek sath aata hai
+        const data = await smartSearchProducts(filters.search);
+        setProducts(data);
+        setTotal(data.length);
+      } else {
         const { data, total } = await getProductsWithCount({
-          search: filters.search || undefined,
           category_id: filters.categoryId || undefined,
           skip: 0,
           limit: PAGE_SIZE,
         });
         setProducts(data);
         setTotal(total);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
     loadProducts();
   }, [filters]);
 
   const handleLoadMore = async () => {
+    if (filters.search) return;
     setLoadingMore(true);
     try {
       const { data } = await getProductsWithCount({
@@ -133,26 +153,33 @@ function Home() {
       <div className="container">
         {/* ---------------- Categories ---------------- */}
         {categories.length > 0 && (
-          <section className="categories-rail">
-            <h2 className="section-heading">Shop by category</h2>
-            <div className="categories-grid">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  className={`category-tile ${
-                    filters.categoryId === category.id ? "category-tile-active" : ""
-                  }`}
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <span className="category-tile-name">{category.name}</span>
-                  <span className="category-tile-count">
-                    {category.productCount} {category.productCount === 1 ? "item" : "items"}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
+        <section className="categories-rail">
+        <h2 className="section-heading">Shop by category</h2>
+         <div className="categories-grid">
+           {categories.slice(0, 9).map((category) => (
+         <button
+          key={category.id}
+          className={`category-tile ${
+            filters.categoryId === category.id ? "category-tile-active" : ""
+          }`}
+          onClick={() => handleCategoryClick(category)}
+          >
+          <span className="category-tile-name">{category.name}</span>
+          <span className="category-tile-count">
+            {category.productCount} {category.productCount === 1 ? "item" : "items"}
+          </span>
+        </button>
+      ))}
+      {categories.length > 9 && (
+        <button className="category-tile category-tile-more" onClick={() => navigate("/categories")}>
+          <span className="category-tile-name">More categories</span>
+          <span className="category-tile-count">{categories.length - 9} more →</span>
+        </button>
         )}
+         </div>
+        </section>
+     )}
+          
 
         {/* ---------------- Product Grid ---------------- */}
         <section className="products-section">

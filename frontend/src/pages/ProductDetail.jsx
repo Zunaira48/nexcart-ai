@@ -6,8 +6,9 @@ import { addToCart } from "../services/cartService";
 import { useAuth } from "../context/useAuth";
 import { useCart } from "../context/useCart";
 import { useWishlist } from "../context/useWishlist";
-import { getProductReviews, submitReview } from "../services/reviewService";
+import { getProductReviews, submitReview, getReviewSummary } from "../services/reviewService";
 import StarRating from "../components/StarRating";
+
 
 function ProductDetail({ id }) {
   const [state, setState] = useState({ product: null, loading: true, error: null });
@@ -21,6 +22,8 @@ function ProductDetail({ id }) {
   const [addMessage, setAddMessage] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -33,7 +36,16 @@ function ProductDetail({ id }) {
 
   useEffect(() => {
     getProductReviews(id)
-      .then((data) => setReviews(data))
+      .then((data) => {
+        setReviews(data);
+        if (data.length >= 3) {
+          setSummaryLoading(true);
+          getReviewSummary(id)
+            .then(setSummary)
+            .catch(() => setSummary(null))
+            .finally(() => setSummaryLoading(false));
+        }
+      })
       .finally(() => setReviewsLoading(false));
   }, [id]);
 
@@ -147,6 +159,34 @@ function ProductDetail({ id }) {
             </span>
           )}
         </h2>
+
+        {summaryLoading && <p className="detail-status">AI summary ban rahi hai...</p>}
+        {summary && (
+          <div className="ai-summary-card">
+            <p className="ai-summary-badge">✨ AI Summary</p>
+            <p className="ai-summary-text">{summary.summary}</p>
+            {summary.pros.length > 0 && (
+              <div className="ai-summary-list">
+                <strong>👍 Customers liked:</strong>
+                <ul>
+                  {summary.pros.map((p, i) => (
+                    <li key={i}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {summary.cons.length > 0 && (
+              <div className="ai-summary-list">
+                <strong>👎 Common concerns:</strong>
+                <ul>
+                  {summary.cons.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         {user && (
           <div className="review-form">

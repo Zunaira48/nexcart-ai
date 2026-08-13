@@ -16,3 +16,8 @@ export const submitReview = async (productId, rating, comment) => {
 export const deleteReview = async (reviewId) => {
   await api.delete(`/reviews/${reviewId}`);
 };
+
+export const getReviewSummary = async (productId) => {
+  const response = await api.get(`/reviews/product/${productId}/summary`);
+  return response.data;
+};

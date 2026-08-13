@@ -1,0 +1,8 @@
+.categories-page {
+  padding: 2.5rem 0 4rem;
+}
+
+.categories-grid-full {
+  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}

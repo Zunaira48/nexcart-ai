@@ -35,3 +35,8 @@ export const getProductsPage = async (skip = 0, limit = 20) => {
   const totalCount = Number(response.headers["x-total-count"] || 0);
   return { products: response.data, totalCount };
 };
+
+export const smartSearchProducts = async (query, limit = 40) => {
+  const response = await api.get("/search/products", { params: { q: query, limit } });
+  return response.data;
+};

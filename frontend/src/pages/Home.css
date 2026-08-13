@@ -105,6 +105,10 @@
   font-family: inherit;
   color: var(--color-text);
 }
+.category-tile-more {
+  border-style: dashed;
+  border-color: var(--color-primary);
+}
 
 .category-tile:hover {
   border-color: var(--color-primary);
