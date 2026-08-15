@@ -22,6 +22,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
+import ChatWidget from "./components/ChatWidget";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <WishlistProvider>
             <BrowserRouter>
               <Navbar />
+              <ChatWidget />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/categories" element={<CategoriesPage />} />
